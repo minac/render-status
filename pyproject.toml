@@ -1,5 +1,5 @@
 [project]
-name = "render-status-deploys"
+name = "render-status"
 version = "0.1.0"
 description = "CLI tool to check Render deploy and cron job status"
 readme = "README.md"
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-render-status = "render_status_deploys.cli:main"
+render-status = "render_status.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
