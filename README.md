@@ -1,4 +1,4 @@
-# Render Status Deploys
+# Render Status
 
 CLI tool to check Render deploy and cron job status.
 

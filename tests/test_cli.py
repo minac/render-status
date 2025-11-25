@@ -1,7 +1,7 @@
 """Tests for CLI."""
 
 
-from render_status_deploys.cli import format_timestamp, get_status_color
+from render_status.cli import format_timestamp, get_status_color
 
 
 class TestFormatTimestamp:

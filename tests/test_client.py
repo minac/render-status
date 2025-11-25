@@ -4,7 +4,7 @@ import pytest
 import httpx
 from unittest.mock import Mock, patch
 
-from render_status_deploys.client import RenderClient
+from render_status.client import RenderClient
 
 
 class TestRenderClient:
