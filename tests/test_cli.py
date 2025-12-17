@@ -1,6 +1,5 @@
 """Tests for CLI."""
 
-
 from render_status.cli import format_timestamp, get_status_color
 
 
