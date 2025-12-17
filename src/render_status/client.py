@@ -73,7 +73,9 @@ class RenderClient:
             httpx.HTTPStatusError: If API request fails
         """
         try:
-            response = self.client.get(f"/services/{service_id}/deploys", params={"limit": limit})
+            response = self.client.get(
+                f"/services/{service_id}/deploys", params={"limit": limit}
+            )
             response.raise_for_status()
             data = response.json()
             # Extract deploy objects from wrapper
@@ -101,7 +103,11 @@ class RenderClient:
             response.raise_for_status()
             data = response.json()
             # Extract job objects from wrapper if present
-            jobs = [item["job"] for item in data] if data and isinstance(data[0], dict) and "job" in data[0] else data
+            jobs = (
+                [item["job"] for item in data]
+                if data and isinstance(data[0], dict) and "job" in data[0]
+                else data
+            )
             logger.info(f"Fetched {len(jobs)} jobs for service {service_id}")
             return jobs
         except httpx.HTTPError as e:

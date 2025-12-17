@@ -55,7 +55,13 @@ class TestRenderClient:
         """Test fetching deploys successfully."""
         mock_response = Mock()
         mock_response.json.return_value = [
-            {"deploy": {"id": "dep-1", "status": "live", "createdAt": "2025-11-25T12:00:00Z"}},
+            {
+                "deploy": {
+                    "id": "dep-1",
+                    "status": "live",
+                    "createdAt": "2025-11-25T12:00:00Z",
+                }
+            },
         ]
         mock_get.return_value = mock_response
 
