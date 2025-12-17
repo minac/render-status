@@ -1,7 +1,7 @@
 # Project Instructions
 
 ## Testing
-**ALWAYS** run `uv run render-status` and run the linter after any code changes to verify the CLI still works correctly.
+Run `uv run render-status` after code changes to verify the CLI works.
 
 ## Architecture
 - CLI tool that displays Render.com service status and deploy information
