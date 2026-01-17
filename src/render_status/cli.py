@@ -87,7 +87,10 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
     table.add_column("Latest Deploy", style="white")
     table.add_column("Updated", style="white")
 
-    for service in services:
+    # Filter out cron jobs from services table (they have their own table)
+    non_cron_services = [s for s in services if s.get("type") != "cron_job"]
+
+    for service in non_cron_services:
         service_type = service.get("type", "N/A")
         name = service.get("name", "N/A")
         service_id = service.get("id", "")
@@ -95,18 +98,17 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
         # Get latest deploy
         latest_status = "N/A"
         latest_deploy_time = "N/A"
-        if service_type != "cron_job":
-            try:
-                deploys = client.get_deploys(service_id, limit=1)
-                if deploys:
-                    latest = deploys[0]
-                    status = latest.get("status", "N/A")
-                    color = get_status_color(status)
-                    latest_status = f"[bold {color}]{status}[/bold {color}]"
-                    latest_deploy_time = format_timestamp(latest.get("createdAt"))
-            except Exception as e:
-                logger.warning(f"Failed to fetch deploys for {name}: {e}")
-                latest_status = "[red]Error[/red]"
+        try:
+            deploys = client.get_deploys(service_id, limit=1)
+            if deploys:
+                latest = deploys[0]
+                status = latest.get("status", "N/A")
+                color = get_status_color(status)
+                latest_status = f"[bold {color}]{status}[/bold {color}]"
+                latest_deploy_time = format_timestamp(latest.get("createdAt"))
+        except Exception as e:
+            logger.warning(f"Failed to fetch deploys for {name}: {e}")
+            latest_status = "[red]Error[/red]"
 
         updated_at = format_timestamp(service.get("updatedAt"))
 
