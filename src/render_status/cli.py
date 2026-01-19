@@ -128,22 +128,30 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
         )
         cron_table.add_column("Name", style="cyan", no_wrap=True)
         cron_table.add_column("Schedule", style="blue")
-        cron_table.add_column("Last Run", style="white")
         cron_table.add_column("Status", style="white")
+        cron_table.add_column("Latest Deploy", style="white")
 
         for service in cron_services:
             name = service.get("name", "N/A")
             service_id = service.get("id", "")
             schedule = service.get("serviceDetails", {}).get("schedule", "N/A")
 
-            # Use lastSuccessfulRunAt from serviceDetails
-            last_run_ts = service.get("serviceDetails", {}).get("lastSuccessfulRunAt")
-            last_run = format_timestamp(last_run_ts) if last_run_ts else "N/A"
+            # Get latest deploy (cron jobs have deploys just like other services)
+            latest_status = "N/A"
+            latest_deploy_time = "N/A"
+            try:
+                deploys = client.get_deploys(service_id, limit=1)
+                if deploys:
+                    latest = deploys[0]
+                    status = latest.get("status", "N/A")
+                    color = get_status_color(status)
+                    latest_status = f"[bold {color}]{status}[/bold {color}]"
+                    latest_deploy_time = format_timestamp(latest.get("createdAt"))
+            except Exception as e:
+                logger.warning(f"Failed to fetch deploys for {name}: {e}")
+                latest_status = "[red]Error[/red]"
 
-            # Jobs endpoint doesn't return historical data, so just show "succeeded" if we have a last run
-            job_status = "[bold green]succeeded[/bold green]" if last_run_ts else "N/A"
-
-            cron_table.add_row(name, schedule, last_run, job_status)
+            cron_table.add_row(name, schedule, latest_status, latest_deploy_time)
 
         return (table, cron_table)
 
