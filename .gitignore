@@ -21,3 +21,6 @@ htmlcov/
 .ruff_cache/
 
 .claude
+
+# Task tracking
+todo.md
