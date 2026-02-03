@@ -9,7 +9,7 @@ Run `uv run render-status` after code changes to verify the CLI works.
 - CLI tool that displays Render.com service status and deploy information
 - Uses Render API v1
 - Displays all timestamps in system's local timezone
-- Supports both single-run (`--once`) and live-update modes (refreshes every 10s)
+- Supports both single-run (`--once`) and live-update modes (configurable refresh interval via `--interval`, default 10s, minimum 1s)
 - Status indicators with bold colors (green/yellow/red)
 - Main components:
   - `client.py`: HTTP client for Render API

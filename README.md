@@ -17,6 +17,7 @@ cp .env.example .env
 ```
 
 Edit `.env`:
+
 ```
 RENDER_API_KEY=your_api_key_here
 ```
@@ -25,12 +26,20 @@ Get your API key from: https://dashboard.render.com/u/settings
 
 ## Usage
 
-Live update mode (refreshes every 10s):
+Live update mode (default 10s refresh):
+
 ```bash
 uv run render-status
 ```
 
+Custom refresh interval (minimum 1s):
+
+```bash
+uv run render-status --interval 5
+```
+
 Single run mode:
+
 ```bash
 uv run render-status --once
 ```
@@ -45,6 +54,7 @@ Displays two tables:
 All timestamps are displayed in your system's local timezone.
 
 Status colors (bold):
+
 - 🟢 Green: `live`, `succeeded`, `success`
 - 🟡 Yellow: `building`, `deploying`, `running`
 - 🔴 Red: `build_failed`, `failed`, `canceled`
@@ -52,16 +62,19 @@ Status colors (bold):
 ## Development
 
 Install dev dependencies:
+
 ```bash
 uv sync --dev
 ```
 
 Run tests:
+
 ```bash
 uv run pytest
 ```
 
 Lint:
+
 ```bash
 ruff check .
 ```
