@@ -1,19 +1,20 @@
 """CLI entry point."""
 
-import logging
 import os
 import sys
 import time
 from datetime import datetime
 
+import structlog
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.live import Live
 from rich.table import Table
 
 from .client import RenderClient
+from .logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
+log = structlog.get_logger()
 console = Console()
 
 
@@ -78,9 +79,7 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
         return empty_table
 
     # Create services table
-    table = Table(
-        title="Render Services", show_header=True, header_style="bold magenta"
-    )
+    table = Table(title="Render Services", show_header=True, header_style="bold magenta")
     table.add_column("Name", style="cyan", no_wrap=True)
     table.add_column("Type", style="blue")
     table.add_column("Status", style="white")
@@ -107,7 +106,7 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
                 latest_status = f"[bold {color}]{status}[/bold {color}]"
                 latest_deploy_time = format_timestamp(latest.get("createdAt"))
         except Exception as e:
-            logger.warning(f"Failed to fetch deploys for {name}: {e}")
+            log.warning("failed to fetch deploys", service_name=name, error=str(e))
             latest_status = "[red]Error[/red]"
 
         updated_at = format_timestamp(service.get("updatedAt"))
@@ -123,9 +122,7 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
     # Display cron jobs separately
     cron_services = [s for s in services if s.get("type") == "cron_job"]
     if cron_services:
-        cron_table = Table(
-            title="Cron Jobs", show_header=True, header_style="bold magenta"
-        )
+        cron_table = Table(title="Cron Jobs", show_header=True, header_style="bold magenta")
         cron_table.add_column("Name", style="cyan", no_wrap=True)
         cron_table.add_column("Schedule", style="blue")
         cron_table.add_column("Status", style="white")
@@ -148,7 +145,7 @@ def build_services_output(client: RenderClient) -> Table | tuple[Table, Table]:
                     latest_status = f"[bold {color}]{status}[/bold {color}]"
                     latest_deploy_time = format_timestamp(latest.get("createdAt"))
             except Exception as e:
-                logger.warning(f"Failed to fetch deploys for {name}: {e}")
+                log.warning("failed to fetch deploys", service_name=name, error=str(e))
                 latest_status = "[red]Error[/red]"
 
             cron_table.add_row(name, schedule, latest_status, latest_deploy_time)
@@ -202,9 +199,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Monitor Render.com services")
-    parser.add_argument(
-        "--once", action="store_true", help="Run once and exit (no live updates)"
-    )
+    parser.add_argument("--once", action="store_true", help="Run once and exit (no live updates)")
     parser.add_argument(
         "--interval",
         type=int,
@@ -217,19 +212,14 @@ def main() -> None:
         console.print("[red]Error: --interval must be at least 1 second[/red]")
         sys.exit(1)
 
-    logging.basicConfig(
-        level=logging.WARNING,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
+    setup_logging(level="WARNING")
 
     # Load .env file
     load_dotenv()
 
     api_key = os.getenv("RENDER_API_KEY")
     if not api_key:
-        console.print(
-            "[red]Error: RENDER_API_KEY not found in environment or .env file[/red]"
-        )
+        console.print("[red]Error: RENDER_API_KEY not found in environment or .env file[/red]")
         sys.exit(1)
 
     with RenderClient(api_key) as client:
@@ -243,9 +233,7 @@ def main() -> None:
         else:
             # Live update mode
             try:
-                with Live(
-                    generate_display(client), refresh_per_second=1, console=console
-                ) as live:
+                with Live(generate_display(client), refresh_per_second=1, console=console) as live:
                     while True:
                         time.sleep(args.interval)
                         live.update(generate_display(client))

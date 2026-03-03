@@ -1,11 +1,11 @@
 """Render API client."""
 
-import logging
 from typing import Any
 
 import httpx
+import structlog
 
-logger = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class RenderClient:
@@ -53,10 +53,10 @@ class RenderClient:
             data = response.json()
             # Extract service objects from wrapper
             services = [item["service"] for item in data]
-            logger.info(f"Fetched {len(services)} services")
+            log.info("fetched services", count=len(services))
             return services
         except httpx.HTTPError as e:
-            logger.error(f"Failed to fetch services: {e}")
+            log.error("failed to fetch services", error=str(e))
             raise
 
     def get_deploys(self, service_id: str, limit: int = 10) -> list[dict[str, Any]]:
@@ -73,17 +73,15 @@ class RenderClient:
             httpx.HTTPStatusError: If API request fails
         """
         try:
-            response = self.client.get(
-                f"/services/{service_id}/deploys", params={"limit": limit}
-            )
+            response = self.client.get(f"/services/{service_id}/deploys", params={"limit": limit})
             response.raise_for_status()
             data = response.json()
             # Extract deploy objects from wrapper
             deploys = [item["deploy"] for item in data]
-            logger.info(f"Fetched {len(deploys)} deploys for service {service_id}")
+            log.info("fetched deploys", service_id=service_id, count=len(deploys))
             return deploys
         except httpx.HTTPError as e:
-            logger.error(f"Failed to fetch deploys for {service_id}: {e}")
+            log.error("failed to fetch deploys", service_id=service_id, error=str(e))
             raise
 
     def get_jobs(self, service_id: str) -> list[dict[str, Any]]:
@@ -108,8 +106,8 @@ class RenderClient:
                 if data and isinstance(data[0], dict) and "job" in data[0]
                 else data
             )
-            logger.info(f"Fetched {len(jobs)} jobs for service {service_id}")
+            log.info("fetched jobs", service_id=service_id, count=len(jobs))
             return jobs
         except httpx.HTTPError as e:
-            logger.error(f"Failed to fetch jobs for {service_id}: {e}")
+            log.error("failed to fetch jobs", service_id=service_id, error=str(e))
             raise
