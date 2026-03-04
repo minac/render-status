@@ -22,5 +22,8 @@ htmlcov/
 
 .claude
 
+# Logs
+logs/
+
 # Task tracking
 todo.md
