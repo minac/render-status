@@ -49,7 +49,7 @@ uv run render-status --once
 Displays two tables:
 
 1. **Render Services**: All services with latest deploy status, type, and timestamps
-2. **Cron Jobs**: Cron jobs with schedule, last run time, and status
+2. **Cron Jobs**: Cron jobs with name, schedule, status, and latest deploy timestamp
 
 All timestamps are displayed in your system's local timezone.
 
